@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{033255FD-8BF6-4A43-B8F3-64A45FCC9159}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ConsoleApp10</RootNamespace>
-    <AssemblyName>ConsoleApp10</AssemblyName>
+    <RootNamespace>SimpleRPN</RootNamespace>
+    <AssemblyName>SimpleRPN</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ConsoleApp10
+namespace SimpleRPN
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var data = "1 + 2 * 3 + 4 * ( 5 + 1 )".Split(' ');
+            var data = "- 1 + 2 * 3 + 4 * ( 5 + 1 )".Split(' ');
             var rpn = new RPN();
             foreach (var str in data)
             {
@@ -19,6 +19,9 @@ namespace ConsoleApp10
         }
     }
 
+    /// <summary>
+    /// 逆ポーランド
+    /// </summary>
     public class RPN
     {
         readonly Stack<RPNInfo> Stacks = new Stack<RPNInfo>();
@@ -75,10 +78,54 @@ namespace ConsoleApp10
         Symbol Symbol1;
         Symbol Symbol2;
         int State;  //0,2(偶数)=数字,  {1,3}(基数)=記号
+        bool MinusHugo = false;
 
+        /// <summary>
+        /// 値取得
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        int GetValue(int value)
+        {
+            if (MinusHugo)
+            {
+                MinusHugo = false;
+                return -value;
+            }
+            else
+            {
+                return value;
+            }
+        }
+
+        /// <summary>
+        /// 数字の符号かチェック
+        /// </summary>
+        /// <param name="sym"></param>
+        void CheckHugo(Symbol sym)
+        {
+            switch (sym)
+            {
+                case Symbol.Plus:
+                    break;
+
+                case Symbol.Minus:
+                    MinusHugo = true;
+                    break;
+
+                default:
+                    throw new Exception("");
+            }
+        }
+
+        /// <summary>
+        /// 計算
+        /// </summary>
+        /// <param name="msg"></param>
         public void Update(string msg)
         {
-            bool isNumeric = int.TryParse(msg, out int num);
+            bool isNumeric = int.TryParse(msg, out int val);
+            var num = GetValue(val);
             var sym = (Symbol)msg[0];
 
             //数字だった
@@ -92,7 +139,7 @@ namespace ConsoleApp10
                     }
                     else
                     {
-                        throw new Exception("");
+                        CheckHugo(sym);
                     }
                     break;
 
@@ -124,7 +171,7 @@ namespace ConsoleApp10
                     }
                     else
                     {
-                        throw new Exception("");
+                        CheckHugo(sym);
                     }
                     break;
 
@@ -157,7 +204,7 @@ namespace ConsoleApp10
                     }
                     else
                     {
-                        throw new Exception("");
+                        CheckHugo(sym);
                     }
                     break;
 
@@ -167,7 +214,7 @@ namespace ConsoleApp10
         }
 
         /// <summary>
-        /// 結果取得
+        /// 計算結果取得
         /// </summary>
         /// <returns></returns>
         public int GetResult()
@@ -176,8 +223,9 @@ namespace ConsoleApp10
             {
                 L = Symbol1.Calc(L, R);
                 State--;
+                return L;
             }
-            if (2 == State)
+            else if (2 == State)
             {
                 return L;
             }
@@ -189,6 +237,9 @@ namespace ConsoleApp10
     }
 
 
+    /// <summary>
+    /// 演算記号
+    /// </summary>
     public enum Symbol
     {
         Plus = '+',
@@ -198,7 +249,11 @@ namespace ConsoleApp10
         KakkoStart = '(',
         KakkoEnd = ')',
     }
+    //TODO：ここをフラグ列挙型にして、文字列パーサを用意する
 
+    /// <summary>
+    /// 演算記号拡張メソッド
+    /// </summary>
     public static class SymbolExtensions
     {
         public static int Calc(this Symbol self, int l, int r)
@@ -222,11 +277,8 @@ namespace ConsoleApp10
             }
         }
 
-        public static bool IsKakkoStart(this Symbol s) => (Symbol.KakkoStart == s);
-        public static bool IsKakkoEnd(this Symbol s) => (Symbol.KakkoEnd == s);
         public static bool IsLowPriority(this Symbol s) => (Symbol.Plus == s || Symbol.Minus == s);
         public static bool IsHighPriority(this Symbol s) => (Symbol.Mul == s || Symbol.Div == s);
-
     }
 
 }
